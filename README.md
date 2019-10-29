@@ -19,3 +19,13 @@ digraph {
 ```
 
 Which can be rendered as:
+
+![graphviz](https://user-images.githubusercontent.com/2590422/67796146-dd17cf00-fa55-11e9-95ea-272d88ec50b8.png)
+
+## Usage
+
+```
+// Install Rust if you don't have it: https://www.rust-lang.org/tools/install
+git clone git@github.com:wbprice/food-dependency-graph.git && cd food-dependency-graph
+cargo run
+```
