@@ -19,7 +19,7 @@ enum Food {
 }
 
 fn main() {
-    let mut deps: petgraph::graphmap::GraphMap<Food, f64, Directed> = GraphMap::new();
+    let mut deps: GraphMap<Food, f64, Directed> = GraphMap::new();
     deps.add_node(Food::Dishes(Dishes::HotDog));
     deps.add_node(Food::Ingredients(Ingredients::HotDogBun));
     deps.add_node(Food::Ingredients(Ingredients::HotDogWeiner));
