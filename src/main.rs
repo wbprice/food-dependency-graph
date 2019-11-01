@@ -5,39 +5,40 @@ use petgraph::{
 };
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
-enum Dishes {
+pub enum Dishes {
     HotDog,
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
-enum Ingredients {
+pub enum Ingredients {
     HotDogBun,
     HotDogWeiner,
     HotDogWeinerCooked,
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
-enum Food {
+pub enum Food {
     Dishes(Dishes),
     Ingredients(Ingredients),
     Actions(Actions),
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
-enum Actions {
-    Cook,
+pub enum Actions {
+    CookIngredient,
+    ChopIngredient
 }
 
-struct Cookbook {
+pub struct Cookbook {
     graph: GraphMap<Food, f64, Directed>,
 }
 
 impl Cookbook {
-    fn new() -> Cookbook {
+    pub fn new() -> Cookbook {
         let mut graph = GraphMap::new();
 
         // Add nodes for actions
-        graph.add_node(Food::Actions(Actions::Cook));
+        graph.add_node(Food::Actions(Actions::CookIngredient));
 
         // Add nodes for ingredients and dishes
         graph.add_node(Food::Ingredients(Ingredients::HotDogBun));
@@ -47,7 +48,7 @@ impl Cookbook {
 
         // Add edges
         graph.add_edge(
-            Food::Actions(Actions::Cook),
+            Food::Actions(Actions::CookIngredient),
             Food::Ingredients(Ingredients::HotDogWeinerCooked),
             1.,
         );
@@ -70,16 +71,40 @@ impl Cookbook {
         Cookbook { graph }
     }
 
-    fn ingredients(&self, food_node: Food) -> Vec<Food> {
-        self.graph
-            .neighbors_directed(food_node, Direction::Incoming)
-            .collect()
+    pub fn actions(&self, food_node: Food) -> Vec<Actions> {
+        let mut actions: Vec<Actions> = vec![];
+
+        for node in self.graph.neighbors_directed(food_node, Direction::Incoming) {
+            if let Food::Actions(action) = node {
+                actions.push(action);
+            }
+        }
+
+        actions
     }
 
-    fn makes(&self, food_node: Food) -> Vec<Food> {
-        self.graph
-            .neighbors_directed(food_node, Direction::Outgoing)
-            .collect()
+    pub fn ingredients(&self, food_node: Food) -> Vec<Ingredients> {
+        let mut ingredients: Vec<Ingredients> = vec![];        
+
+        for node in self.graph.neighbors_directed(food_node, Direction::Incoming) {
+            if let Food::Ingredients(ingredient) = node {
+                ingredients.push(ingredient);
+            }
+        }
+
+        ingredients
+    }
+
+    pub fn makes(&self, food_node: Food) -> Vec<Dishes> {
+        let mut dishes: Vec<Dishes> = vec![];
+
+        for node in self.graph.neighbors_directed(food_node, Direction::Outgoing) {
+            if let Food::Dishes(dish) = node {
+                dishes.push(dish);
+            }
+        }
+
+        dishes
     }
 }
 
