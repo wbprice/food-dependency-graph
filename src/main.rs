@@ -26,7 +26,7 @@ pub enum Food {
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
 pub enum Actions {
     CookIngredient,
-    ChopIngredient
+    ChopIngredient,
 }
 
 pub struct Cookbook {
@@ -74,7 +74,10 @@ impl Cookbook {
     pub fn actions(&self, food_node: Food) -> Vec<Actions> {
         let mut actions: Vec<Actions> = vec![];
 
-        for node in self.graph.neighbors_directed(food_node, Direction::Incoming) {
+        for node in self
+            .graph
+            .neighbors_directed(food_node, Direction::Incoming)
+        {
             if let Food::Actions(action) = node {
                 actions.push(action);
             }
@@ -84,9 +87,12 @@ impl Cookbook {
     }
 
     pub fn ingredients(&self, food_node: Food) -> Vec<Ingredients> {
-        let mut ingredients: Vec<Ingredients> = vec![];        
+        let mut ingredients: Vec<Ingredients> = vec![];
 
-        for node in self.graph.neighbors_directed(food_node, Direction::Incoming) {
+        for node in self
+            .graph
+            .neighbors_directed(food_node, Direction::Incoming)
+        {
             if let Food::Ingredients(ingredient) = node {
                 ingredients.push(ingredient);
             }
@@ -98,13 +104,35 @@ impl Cookbook {
     pub fn makes(&self, food_node: Food) -> Vec<Dishes> {
         let mut dishes: Vec<Dishes> = vec![];
 
-        for node in self.graph.neighbors_directed(food_node, Direction::Outgoing) {
+        for node in self
+            .graph
+            .neighbors_directed(food_node, Direction::Outgoing)
+        {
             if let Food::Dishes(dish) = node {
                 dishes.push(dish);
             }
         }
 
         dishes
+    }
+
+    pub fn get_dish_from_ingredients(&self, ingredients: Vec<Ingredients>) -> Option<Dishes> {
+        if let Some(first_ingredient) = ingredients.first() {
+            let other_ingredients = ingredients[1..].to_vec();
+            let potential_dishes = self.makes(Food::Ingredients(*first_ingredient));
+
+            for ingredient in other_ingredients.into_iter() {
+                let other_potential_dishes = self.makes(Food::Ingredients(ingredient));
+                for dish in other_potential_dishes.iter() {
+                    if !potential_dishes.contains(dish) {
+                        return None;
+                    }
+                }
+            }
+
+            Some(potential_dishes[0]);
+        }
+        None
     }
 }
 
@@ -129,5 +157,46 @@ fn main() {
     println!("Hot Dog Bun can be used to make:");
     for node in cookbook.makes(Food::Ingredients(Ingredients::HotDogBun)) {
         dbg!(node);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn get_ingredients_needed_for_hot_dog() {
+        let cookbook = Cookbook::new();
+        let ingredients = cookbook.ingredients(Food::Dishes(Dishes::HotDog));
+        assert_eq!(ingredients.len(), 2);
+        assert!(ingredients.contains(&Ingredients::HotDogBun));
+        assert!(ingredients.contains(&Ingredients::HotDogWeinerCooked));
+    }
+
+    #[test]
+    fn get_dishes_from_ingredient() {
+        let cookbook = Cookbook::new();
+        let dishes = cookbook.makes(Food::Ingredients(Ingredients::HotDogBun));
+        assert_eq!(dishes.len(), 1);
+        assert!(dishes.contains(&Dishes::HotDog));
+    }
+
+    #[test]
+    fn get_dish_from_ingredients_coherent_dish() {
+        let cookbook = Cookbook::new();
+        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogWeinerCooked];
+        let result = cookbook.get_dish_from_ingredients(ingredients);
+
+        assert!(result.is_some());
+        assert_eq!(result.unwrap(), Dishes::HotDog);
+    }
+
+    #[test]
+    fn get_dish_from_ingredients_incoherent_dish() {
+        let cookbook = Cookbook::new();
+        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogWeiner];
+        let result = cookbook.get_dish_from_ingredients(ingredients);
+
+        assert!(result.is_none());
     }
 }
