@@ -29,6 +29,7 @@ pub enum Actions {
     ChopIngredient,
 }
 
+#[derive(Default)]
 pub struct Cookbook {
     graph: GraphMap<Food, f64, Directed>,
 }
@@ -123,6 +124,14 @@ impl Cookbook {
 
             for ingredient in other_ingredients.into_iter() {
                 let other_potential_dishes = self.makes(Food::Ingredients(ingredient));
+
+                // If this ingredient doesn't have an edge to _any_ dishes, that's an issue.
+                if other_potential_dishes.is_empty() {
+                    return None;
+                }
+
+                // Otherwise, confirm that this ingredient could be used to make a dish in
+                // the list of potential dishes
                 for dish in other_potential_dishes.iter() {
                     if !potential_dishes.contains(dish) {
                         return None;
@@ -130,7 +139,7 @@ impl Cookbook {
                 }
             }
 
-            Some(potential_dishes[0]);
+            return Some(potential_dishes[0]);
         }
         None
     }
@@ -148,7 +157,7 @@ fn main() {
     for node in cookbook.ingredients(Food::Dishes(Dishes::HotDog)) {
         dbg!(node);
     }
-    println!("");
+    println!();
     println!("These ingredients can make:");
     println!("Hot Dog Weiner can be used to make:");
     for node in cookbook.makes(Food::Ingredients(Ingredients::HotDogWeinerCooked)) {
