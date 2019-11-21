@@ -12,8 +12,8 @@ pub enum Dishes {
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
 pub enum Ingredients {
     HotDogBun,
-    HotDogWeiner,
-    HotDogWeinerCooked,
+    HotDogLink,
+    HotDogLinkCooked,
 }
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, PartialOrd, Ord, Hash)]
@@ -43,23 +43,23 @@ impl Cookbook {
 
         // Add nodes for ingredients and dishes
         graph.add_node(Food::Ingredients(Ingredients::HotDogBun));
-        graph.add_node(Food::Ingredients(Ingredients::HotDogWeiner));
-        graph.add_node(Food::Ingredients(Ingredients::HotDogWeinerCooked));
+        graph.add_node(Food::Ingredients(Ingredients::HotDogLink));
+        graph.add_node(Food::Ingredients(Ingredients::HotDogLinkCooked));
         graph.add_node(Food::Dishes(Dishes::HotDog));
 
         // Add edges
         graph.add_edge(
             Food::Actions(Actions::CookIngredient),
-            Food::Ingredients(Ingredients::HotDogWeinerCooked),
+            Food::Ingredients(Ingredients::HotDogLinkCooked),
             1.,
         );
         graph.add_edge(
-            Food::Ingredients(Ingredients::HotDogWeiner),
-            Food::Ingredients(Ingredients::HotDogWeinerCooked),
+            Food::Ingredients(Ingredients::HotDogLink),
+            Food::Ingredients(Ingredients::HotDogLinkCooked),
             1.,
         );
         graph.add_edge(
-            Food::Ingredients(Ingredients::HotDogWeinerCooked),
+            Food::Ingredients(Ingredients::HotDogLinkCooked),
             Food::Dishes(Dishes::HotDog),
             1.,
         );
@@ -159,8 +159,8 @@ fn main() {
     }
     println!();
     println!("These ingredients can make:");
-    println!("Hot Dog Weiner can be used to make:");
-    for node in cookbook.makes(Food::Ingredients(Ingredients::HotDogWeinerCooked)) {
+    println!("Hot Dog Link can be used to make:");
+    for node in cookbook.makes(Food::Ingredients(Ingredients::HotDogLinkCooked)) {
         dbg!(node);
     }
     println!("Hot Dog Bun can be used to make:");
@@ -179,7 +179,7 @@ mod tests {
         let ingredients = cookbook.ingredients(Food::Dishes(Dishes::HotDog));
         assert_eq!(ingredients.len(), 2);
         assert!(ingredients.contains(&Ingredients::HotDogBun));
-        assert!(ingredients.contains(&Ingredients::HotDogWeinerCooked));
+        assert!(ingredients.contains(&Ingredients::HotDogLinkCooked));
     }
 
     #[test]
@@ -193,7 +193,7 @@ mod tests {
     #[test]
     fn get_dish_from_ingredients_coherent_dish() {
         let cookbook = Cookbook::new();
-        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogWeinerCooked];
+        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogLinkCooked];
         let result = cookbook.get_dish_from_ingredients(ingredients);
 
         assert!(result.is_some());
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn get_dish_from_ingredients_incoherent_dish() {
         let cookbook = Cookbook::new();
-        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogWeiner];
+        let ingredients = vec![Ingredients::HotDogBun, Ingredients::HotDogLink];
         let result = cookbook.get_dish_from_ingredients(ingredients);
 
         assert!(result.is_none());
