@@ -6,21 +6,21 @@ Sketch describing how to use `petgraph` to model relationships between foods and
 
 ```
 digraph {
-    0 [label="Dishes(HotDog)"]
+    0 [label="Actions(CookIngredient)"]
     1 [label="Ingredients(HotDogBun)"]
-    2 [label="Ingredients(HotDogWeiner)"]
-    3 [label="Ingredients(HotDogWeinerCooked)"]
-    4 [label="Actions(Cook)"]
-    3 -> 0
-    1 -> 0
+    2 [label="Ingredients(HotDogLink)"]
+    3 [label="Ingredients(HotDogLinkCooked)"]
+    4 [label="Dishes(HotDog)"]
+    0 -> 3
     2 -> 3
-    4 -> 3
+    3 -> 4
+    1 -> 4
 }
 ```
 
 Which can be rendered as:
 
-![graphviz](https://user-images.githubusercontent.com/2590422/67796146-dd17cf00-fa55-11e9-95ea-272d88ec50b8.png)
+![food-dependency-graph](https://user-images.githubusercontent.com/2590422/69379628-ccd2c880-0c7e-11ea-87bb-6b4d3f36b1f4.png)
 
 ## Usage
 
